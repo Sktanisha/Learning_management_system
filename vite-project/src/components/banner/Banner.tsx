@@ -7,7 +7,7 @@ import Button from "../ui/Button"
 
 const Banner = () => {
   return (
-    <section className="bg-primary pt-[81px] pb-[173px]">
+    <section className="relative bg-primary pt-[81px] pb-[173px]">
       <Container >
         <Flex className=" gap-4 lg:gap-0 flex-col lg:flex-row">
             <div className=" w-full lg:w-2/4">

@@ -96,7 +96,7 @@ function SamplePrevArrow(props: CustomArrowProps) {
     ]
   };
   return (
-    <section className="w-full absolute bottom-[-100px]">
+    <section className="absolute bottom-[-100px] left-0 w-full z-10">
       <Container>
         <Slider {...settings}>
             {categoryItems.map((item)=>(
