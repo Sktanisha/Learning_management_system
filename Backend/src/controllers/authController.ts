@@ -114,14 +114,14 @@ export const login = async (req: Request, res: Response) => {
       })
     }
 
-    console.log(
+    /* console.log(
   "Login JWT secret fingerprint:",
   crypto
     .createHash("sha256")
     .update(jwtSecret)
     .digest("hex")
     .slice(0, 12),
-)
+) */
 
     // 5. Create JWT
     const token = jwt.sign(

@@ -39,14 +39,14 @@ export const protect = (
     }
 
     // Temporary debugging fingerprint
-    console.log(
+    /* console.log(
       "Middleware JWT secret fingerprint:",
       crypto
         .createHash("sha256")
         .update(jwtSecret)
         .digest("hex")
         .slice(0, 12),
-    )
+    ) */
 
     // 4. Verify token
     const decoded = jwt.verify(token, jwtSecret) as {
