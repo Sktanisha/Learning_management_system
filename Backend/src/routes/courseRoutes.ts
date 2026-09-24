@@ -3,6 +3,7 @@ import { createCourse,
         getCourses,
         getCourseById,
         updateCourse,
+        deleteCourse,
  } from "../controllers/courseController"
 import { protect } from "../middleware/authMiddleware"
 import { authorize } from "../middleware/roleMiddleware"
@@ -22,6 +23,12 @@ router.put(
   protect,
   authorize("instructor", "admin"),
   updateCourse,
+)
+router.delete(
+  "/:id",
+  protect,
+  authorize("instructor", "admin"),
+  deleteCourse,
 )
 
 export default router

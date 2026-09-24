@@ -175,3 +175,46 @@ export const updateCourse = async (
     })
   }
 }
+
+export const deleteCourse = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params
+
+    const course = await Course.findById(id)
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      })
+    }
+
+    // Only the course instructor or an admin can delete it
+    if (
+      req.user?.role !== "admin" &&
+      course.instructor.toString() !== req.user?.userId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own courses",
+      })
+    }
+
+    await Course.findByIdAndDelete(id)
+
+    return res.status(200).json({
+      success: true,
+      message: "Course deleted successfully",
+    })
+  } catch (error) {
+    console.error("Delete course error:", error)
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    })
+  }
+}
