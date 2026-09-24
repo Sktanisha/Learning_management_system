@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes"
 import courseRoutes from "./routes/courseRoutes"
 import lessonRoutes from "./routes/lessonRoutes"
 import enrollmentRoutes from "./routes/enrollmentRoutes"
+import progressRoutes from "./routes/progressRoutes"
 
 const app = express()
 
@@ -21,5 +22,6 @@ app.use("/api/auth", authRoutes)
 app.use("/api/courses", courseRoutes)
 app.use("/api", lessonRoutes)
 app.use("/api/enrollments", enrollmentRoutes)
+app.use("/api/progress", progressRoutes)
 
 export default app
