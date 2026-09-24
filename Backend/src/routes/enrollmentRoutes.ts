@@ -7,7 +7,8 @@ import {
   unenrollFromCourse,
   getCourseEnrollments,
 } from "../controllers/enrollmentController"
-
+import { validate } from "../middleware/validationMiddleware"
+import { enrollSchema } from "../validation/enrollmentValidation"
 import { protect } from "../middleware/authMiddleware"
 
 const router = Router()
@@ -28,6 +29,7 @@ router.get(
 router.post(
   "/",
   protect,
+  validate(enrollSchema),
   enrollInCourse,
 )
 
