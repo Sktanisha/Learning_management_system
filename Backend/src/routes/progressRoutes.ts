@@ -5,7 +5,8 @@ import {
   completeLesson,
   updateCurrentLesson,
 } from "../controllers/progressController"
-
+import { validate } from "../middleware/validationMiddleware"
+import { progressParamsSchema } from "../validation/progressValidation"
 import { protect } from "../middleware/authMiddleware"
 
 const router = Router()
@@ -19,12 +20,14 @@ router.get(
 router.post(
   "/:courseId/lessons/:lessonId/complete",
   protect,
+  validate(progressParamsSchema),
   completeLesson,
 )
 
 router.put(
   "/:courseId/lessons/:lessonId/current",
   protect,
+  validate(progressParamsSchema),
   updateCurrentLesson,
 )
 
