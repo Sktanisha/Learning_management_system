@@ -1,17 +1,59 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { api } from "../../services/api"
+import { useAuth } from "../../context/AuthContext"
 
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault()
 
-    console.log({
-      email,
-      password,
-    })
+    setError("")
+
+    if (!email.trim()) {
+      setError("ইমেইল লিখুন")
+      return
+    }
+
+    if (!password) {
+      setError("পাসওয়ার্ড লিখুন")
+      return
+    }
+
+    try {
+      setIsLoading(true)
+
+      const data = await api("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      })
+
+      login(data.user, data.token)
+
+      navigate("/")
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "লগইন ব্যর্থ হয়েছে"
+
+      setError(message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -45,7 +87,11 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="আপনার ইমেইল লিখুন"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-primary"
+              className={`w-full border rounded-lg px-4 py-3 outline-none ${
+                error
+                  ? "border-red-500"
+                  : "border-gray-300 focus:border-primary"
+              }`}
             />
           </div>
 
@@ -64,16 +110,28 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="আপনার পাসওয়ার্ড লিখুন"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-primary"
+              className={`w-full border rounded-lg px-4 py-3 outline-none ${
+                error
+                  ? "border-red-500"
+                  : "border-gray-300 focus:border-primary"
+              }`}
             />
           </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-sm font-anik">
+              {error}
+            </div>
+          )}
 
           {/* Login button */}
           <button
             type="submit"
-            className="w-full mt-7 bg-primary text-white font-anik font-semibold py-3 rounded-lg cursor-pointer hover:opacity-90 transition"
+            disabled={isLoading}
+            className="w-full mt-7 bg-primary text-white font-anik font-semibold py-3 rounded-lg cursor-pointer hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            লগইন
+            {isLoading ? "লগইন হচ্ছে..." : "লগইন"}
           </button>
         </form>
 

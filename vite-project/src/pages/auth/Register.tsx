@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-
+import { api } from "../../services/api"
 const Register = () => {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -8,44 +8,72 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("")
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [serverError, setServerError] = useState("")
+  const handleSubmit = async (
+  e: React.FormEvent<HTMLFormElement>,
+) => {
+  e.preventDefault()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const newErrors: Record<string, string> = {}
 
-    const newErrors: Record<string, string> = {}
-
-    if (!name.trim()) {
-      newErrors.name = "নাম লিখুন"
-    }
-
-    if (!email.trim()) {
-      newErrors.email = "ইমেইল লিখুন"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "সঠিক ইমেইল দিন"
-    }
-
-    if (!password) {
-      newErrors.password = "পাসওয়ার্ড লিখুন"
-    } else if (password.length < 6) {
-      newErrors.password = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "পাসওয়ার্ড আবার লিখুন"
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "পাসওয়ার্ড মিলছে না"
-    }
-
-    setErrors(newErrors)
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log({
-        name,
-        email,
-        password,
-      })
-    }
+  if (!name.trim()) {
+    newErrors.name = "নাম লিখুন"
   }
+
+  if (!email.trim()) {
+    newErrors.email = "ইমেইল লিখুন"
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    newErrors.email = "সঠিক ইমেইল দিন"
+  }
+
+  if (!password) {
+    newErrors.password = "পাসওয়ার্ড লিখুন"
+  } else if (password.length < 6) {
+    newErrors.password =
+      "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"
+  }
+
+  if (!confirmPassword) {
+    newErrors.confirmPassword =
+      "পাসওয়ার্ড আবার লিখুন"
+  } else if (password !== confirmPassword) {
+    newErrors.confirmPassword =
+      "পাসওয়ার্ড মিলছে না"
+  }
+
+  setErrors(newErrors)
+  setServerError("")
+
+  if (Object.keys(newErrors).length > 0) {
+    return
+  }
+
+  try {
+    setIsLoading(true)
+
+    const data = await api("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      }),
+    })
+
+    console.log("Registration successful:", data)
+
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "রেজিস্ট্রেশন ব্যর্থ হয়েছে"
+
+    setServerError(message)
+  } finally {
+    setIsLoading(false)
+  }
+}
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center px-4 py-10">
@@ -178,14 +206,21 @@ const Register = () => {
               </p>
             )}
           </div>
-
+{serverError && (
+  <div className="mt-5 bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-sm font-anik">
+    {serverError}
+  </div>
+)}
           {/* Submit */}
           <button
-            type="submit"
-            className="w-full mt-7 bg-primary text-white font-anik font-semibold py-3 rounded-lg cursor-pointer hover:opacity-90 transition"
-          >
-            অ্যাকাউন্ট তৈরি করুন
-          </button>
+  type="submit"
+  disabled={isLoading}
+  className="w-full mt-7 bg-primary text-white font-anik font-semibold py-3 rounded-lg cursor-pointer hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
+>
+  {isLoading
+    ? "অ্যাকাউন্ট তৈরি হচ্ছে..."
+    : "অ্যাকাউন্ট তৈরি করুন"}
+</button>
         </form>
 
         {/* Login */}
