@@ -3,6 +3,7 @@ import Button from "../ui/Button"
 import Flex from "../ui/Flex"
 import Image from "../ui/Image"
 import { FaStar } from "react-icons/fa"
+import { Link } from "react-router-dom"
 
 type Course = {
   _id: string
@@ -21,13 +22,10 @@ type CoursesCardProps = {
 
 const Courses_card = ({ course }: CoursesCardProps) => {
   return (
-    <div className="max-w-[377px] font-anik overflow-hidden rounded-[20px]">
-
-      {/* Course Image */}
-      <Image
-        imgurl={course.thumbnail || Merncourse}
-        alt={course.title}
-      />
+     <Link
+    to={`/courses/${course._id}`}
+    className="block max-w-[377px] font-anik"
+  >
 
       <div className="bg-secondary text-white px-4 py-2 rounded-b-[20px]">
 
@@ -63,7 +61,7 @@ const Courses_card = ({ course }: CoursesCardProps) => {
         </h2>
 
       </div>
-    </div>
+    </Link>
   )
 }
 
