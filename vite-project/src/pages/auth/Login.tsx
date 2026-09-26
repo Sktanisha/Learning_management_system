@@ -31,31 +31,38 @@ const Login = () => {
     }
 
     try {
-      setIsLoading(true)
+  setIsLoading(true)
 
-      const data = await api("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-        }),
-      })
+  const data = await api("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: email.trim(),
+      password,
+    }),
+  })
 
-      login(data.user, data.token)
+  login(data.user, data.token)
 
-      navigate("/")
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "লগইন ব্যর্থ হয়েছে"
-
-      setError(message)
-    } finally {
-      setIsLoading(false)
-    }
+  if (data.user.role === "student") {
+    navigate("/student/dashboard")
+  } else if (data.user.role === "instructor") {
+    navigate("/instructor/dashboard")
+  } else if (data.user.role === "admin") {
+    navigate("/admin/dashboard")
+  } else {
+    navigate("/")
   }
+} catch (error) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : "লগইন ব্যর্থ হয়েছে"
 
+  setError(message)
+} finally {
+  setIsLoading(false)
+}
+  }
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center px-4">
       <div className="w-full max-w-[450px] bg-white rounded-[15px] shadow-md p-8">
