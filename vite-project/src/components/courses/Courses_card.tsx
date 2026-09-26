@@ -22,11 +22,17 @@ type CoursesCardProps = {
 
 const Courses_card = ({ course }: CoursesCardProps) => {
   return (
-     <Link
-    to={`/courses/${course._id}`}
-    className="block max-w-[377px] font-anik"
-  >
+    <Link
+      to={`/courses/${course._id}`}
+      className="block max-w-[377px] font-anik overflow-hidden rounded-[20px]"
+    >
+      {/* Course Image */}
+      <Image
+        imgurl={course.thumbnail || Merncourse}
+        alt={course.title}
+      />
 
+      {/* Course Information */}
       <div className="bg-secondary text-white px-4 py-2 rounded-b-[20px]">
 
         <Flex className="justify-between">
