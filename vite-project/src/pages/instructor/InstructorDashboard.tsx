@@ -161,12 +161,12 @@ const InstructorDashboard = () => {
               আমার কোর্স
             </h2>
 
-            <button
-              type="button"
-              className="bg-primary text-white px-5 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90"
-            >
-              + নতুন কোর্স
-            </button>
+            <Link
+  to="/instructor/courses/create"
+  className="bg-primary text-white px-5 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90"
+>
+  + নতুন কোর্স
+</Link>
 
           </div>
 
