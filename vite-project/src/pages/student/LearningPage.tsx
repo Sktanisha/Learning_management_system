@@ -20,6 +20,20 @@ type Course = {
   lessons?: Lesson[]
 }
 
+type CompletedLesson = {
+  _id: string
+  title?: string
+  order?: number
+  duration?: number
+}
+
+type Progress = {
+  percentage: number
+  completedLessons: CompletedLesson[]
+  currentLesson: CompletedLesson | string | null
+  completed: boolean
+}
+
 const LearningPage = () => {
   const { id } = useParams()
   const { user } = useAuth()
@@ -28,8 +42,14 @@ const LearningPage = () => {
   const [selectedLesson, setSelectedLesson] =
     useState<Lesson | null>(null)
 
+  const [progress, setProgress] =
+    useState<Progress | null>(null)
+
   const [isLoading, setIsLoading] = useState(true)
+  const [isCompleting, setIsCompleting] = useState(false)
+
   const [error, setError] = useState("")
+  const [progressError, setProgressError] = useState("")
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -37,14 +57,23 @@ const LearningPage = () => {
 
       try {
         setIsLoading(true)
+        setError("")
 
-        const data = await api(`/courses/${id}`)
+        // Get course
+        const courseData = await api(`/courses/${id}`)
 
-        setCourse(data.course)
+        setCourse(courseData.course)
 
-        if (data.course.lessons?.length > 0) {
-          setSelectedLesson(data.course.lessons[0])
+        if (courseData.course.lessons?.length > 0) {
+          setSelectedLesson(courseData.course.lessons[0])
         }
+
+        // Get student progress
+        const progressData = await api(
+          `/progress/${id}`,
+        )
+
+        setProgress(progressData.progress)
       } catch (error) {
         const message =
           error instanceof Error
@@ -59,6 +88,56 @@ const LearningPage = () => {
 
     fetchCourse()
   }, [id])
+
+  const handleCompleteLesson = async () => {
+    if (!id || !selectedLesson) return
+
+    try {
+      setIsCompleting(true)
+      setProgressError("")
+
+      const data = await api(
+        `/progress/${id}/lessons/${selectedLesson._id}/complete`,
+        {
+          method: "POST",
+        },
+      )
+
+      setProgress(data.progress)
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "লেসন সম্পন্ন করা যায়নি"
+
+      setProgressError(message)
+    } finally {
+      setIsCompleting(false)
+    }
+  }
+
+  const handleSelectLesson = async (lesson: Lesson) => {
+    setSelectedLesson(lesson)
+    setProgressError("")
+
+    if (!id) return
+
+    try {
+      const data = await api(
+        `/progress/${id}/lessons/${lesson._id}/current`,
+        {
+          method: "PUT",
+        },
+      )
+
+      setProgress(data.progress)
+    } catch (error) {
+      console.error(
+        "Failed to update current lesson:",
+        error,
+      )
+    }
+  }
 
   if (isLoading) {
     return (
@@ -89,6 +168,13 @@ const LearningPage = () => {
     )
   }
 
+  const isCurrentLessonCompleted =
+    selectedLesson &&
+    progress?.completedLessons?.some(
+      (completedLesson) =>
+        completedLesson._id === selectedLesson._id,
+    )
+
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
 
@@ -118,6 +204,40 @@ const LearningPage = () => {
 
       {/* Main */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+
+        {/* Progress */}
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+
+          <div className="flex items-center justify-between mb-2">
+
+            <h2 className="font-bold text-primary font-anik">
+              আপনার অগ্রগতি
+            </h2>
+
+            <span className="font-bold text-primary">
+              {progress?.percentage || 0}%
+            </span>
+
+          </div>
+
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+
+            <div
+              className="bg-primary h-3 rounded-full transition-all duration-500"
+              style={{
+                width: `${progress?.percentage || 0}%`,
+              }}
+            />
+
+          </div>
+
+          {progress?.completed && (
+            <p className="text-green-600 font-anik text-sm mt-3 font-semibold">
+              🎉 আপনি এই কোর্সটি সম্পন্ন করেছেন!
+            </p>
+          )}
+
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6">
 
@@ -165,6 +285,39 @@ const LearningPage = () => {
                   Duration: {selectedLesson.duration} minutes
                 </p>
 
+                {/* Progress Error */}
+                {progressError && (
+                  <p className="text-red-500 text-sm font-anik mt-4">
+                    {progressError}
+                  </p>
+                )}
+
+                {/* Complete Lesson Button */}
+                <div className="mt-6">
+
+                  {isCurrentLessonCompleted ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="bg-green-600 text-white px-6 py-3 rounded-lg font-anik font-semibold"
+                    >
+                      ✓ লেসন সম্পন্ন হয়েছে
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleCompleteLesson}
+                      disabled={isCompleting}
+                      className="bg-primary text-white px-6 py-3 rounded-lg font-anik font-semibold cursor-pointer disabled:opacity-50"
+                    >
+                      {isCompleting
+                        ? "সম্পন্ন করা হচ্ছে..."
+                        : "লেসন সম্পন্ন করুন"}
+                    </button>
+                  )}
+
+                </div>
+
               </div>
             )}
 
@@ -174,6 +327,7 @@ const LearningPage = () => {
           <aside className="bg-white rounded-xl shadow-sm overflow-hidden">
 
             <div className="p-5 border-b">
+
               <h2 className="text-xl font-bold text-primary font-anik">
                 কোর্সের লেসন
               </h2>
@@ -181,6 +335,7 @@ const LearningPage = () => {
               <p className="text-sm text-gray-500 font-anik mt-1">
                 {course.lessons?.length || 0} টি লেসন
               </p>
+
             </div>
 
             <div className="max-h-[600px] overflow-y-auto">
@@ -192,11 +347,17 @@ const LearningPage = () => {
                   const isSelected =
                     selectedLesson?._id === lesson._id
 
+                  const isCompleted =
+                    progress?.completedLessons?.some(
+                      (completedLesson) =>
+                        completedLesson._id === lesson._id,
+                    )
+
                   return (
                     <button
                       key={lesson._id}
                       onClick={() =>
-                        setSelectedLesson(lesson)
+                        handleSelectLesson(lesson)
                       }
                       className={`w-full text-left p-4 border-b cursor-pointer transition ${
                         isSelected
@@ -207,14 +368,19 @@ const LearningPage = () => {
 
                       <div className="flex gap-3">
 
+                        {/* Lesson Number */}
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                             isSelected
                               ? "bg-white text-primary"
-                              : "bg-gray-100 text-gray-600"
+                              : isCompleted
+                                ? "bg-green-100 text-green-600"
+                                : "bg-gray-100 text-gray-600"
                           }`}
                         >
-                          {lesson.order}
+                          {isCompleted
+                            ? "✓"
+                            : lesson.order}
                         </div>
 
                         <div className="flex-1">

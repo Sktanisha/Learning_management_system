@@ -21,10 +21,17 @@ type Enrollment = {
   enrolledAt: string
 }
 
+type Progress = {
+  percentage: number
+  completed: boolean
+}
+
 const StudentDashboard = () => {
   const { user, logout } = useAuth()
 
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([])
+  const [enrollments, setEnrollments] =
+    useState<Enrollment[]>([])
+
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -32,12 +39,43 @@ const StudentDashboard = () => {
     const fetchEnrollments = async () => {
       try {
         setIsLoading(true)
+        setError("")
 
         const data = await api(
           "/enrollments/my-courses",
         )
 
-        setEnrollments(data.enrollments || [])
+        const enrollmentList: Enrollment[] =
+          data.enrollments || []
+
+        // Get latest progress for every enrolled course
+        const updatedEnrollments =
+          await Promise.all(
+            enrollmentList.map(async (enrollment) => {
+              try {
+                const progressData: {
+                  progress: Progress
+                } = await api(
+                  `/progress/${enrollment.course._id}`,
+                )
+
+                return {
+                  ...enrollment,
+                  progress:
+                    progressData.progress?.percentage ??
+                    enrollment.progress,
+                  completed:
+                    progressData.progress?.completed ??
+                    enrollment.completed,
+                }
+              } catch {
+                // Keep enrollment data if progress request fails
+                return enrollment
+              }
+            }),
+          )
+
+        setEnrollments(updatedEnrollments)
       } catch (error) {
         const message =
           error instanceof Error
@@ -57,11 +95,17 @@ const StudentDashboard = () => {
     (enrollment) => enrollment.completed,
   ).length
 
+  const ongoingCourses =
+    enrollments.length - completedCourses
+
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
+
       {/* Header */}
       <header className="bg-white shadow-sm">
+
         <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
+
           <div>
             <h1 className="text-2xl font-bold text-primary font-anik">
               Student Dashboard
@@ -78,7 +122,9 @@ const StudentDashboard = () => {
           >
             লগআউট
           </button>
+
         </div>
+
       </header>
 
       {/* Main */}
@@ -87,7 +133,9 @@ const StudentDashboard = () => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
+          {/* Total */}
           <div className="bg-white rounded-xl shadow-sm p-6">
+
             <p className="text-gray-500 font-anik">
               মোট কোর্স
             </p>
@@ -95,20 +143,25 @@ const StudentDashboard = () => {
             <p className="text-3xl font-bold text-primary mt-2">
               {enrollments.length}
             </p>
+
           </div>
 
+          {/* Ongoing */}
           <div className="bg-white rounded-xl shadow-sm p-6">
+
             <p className="text-gray-500 font-anik">
               চলমান কোর্স
             </p>
 
             <p className="text-3xl font-bold text-primary mt-2">
-              {enrollments.length -
-                completedCourses}
+              {ongoingCourses}
             </p>
+
           </div>
 
+          {/* Completed */}
           <div className="bg-white rounded-xl shadow-sm p-6">
+
             <p className="text-gray-500 font-anik">
               সম্পন্ন কোর্স
             </p>
@@ -116,6 +169,7 @@ const StudentDashboard = () => {
             <p className="text-3xl font-bold text-primary mt-2">
               {completedCourses}
             </p>
+
           </div>
 
         </div>
@@ -124,6 +178,7 @@ const StudentDashboard = () => {
         <section className="mt-10">
 
           <div className="flex items-center justify-between mb-5">
+
             <h2 className="text-2xl font-bold text-primary font-anik">
               আমার কোর্স
             </h2>
@@ -134,23 +189,28 @@ const StudentDashboard = () => {
             >
               আরও কোর্স দেখুন
             </Link>
+
           </div>
 
           {/* Loading */}
           {isLoading && (
             <div className="bg-white rounded-xl p-8 text-center">
+
               <p className="font-anik text-gray-600">
                 কোর্স লোড হচ্ছে...
               </p>
+
             </div>
           )}
 
           {/* Error */}
           {!isLoading && error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+
               <p className="text-red-600 font-anik">
                 {error}
               </p>
+
             </div>
           )}
 
@@ -159,6 +219,7 @@ const StudentDashboard = () => {
             !error &&
             enrollments.length === 0 && (
               <div className="bg-white rounded-xl p-10 text-center">
+
                 <h3 className="text-xl font-semibold text-primary font-anik">
                   এখনো কোনো কোর্সে ভর্তি হননি
                 </h3>
@@ -173,20 +234,23 @@ const StudentDashboard = () => {
                 >
                   কোর্স দেখুন
                 </Link>
+
               </div>
             )}
 
-          {/* Course cards */}
+          {/* Course Cards */}
           {!isLoading &&
             !error &&
             enrollments.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {enrollments.map((enrollment) => (
+
                   <div
                     key={enrollment._id}
                     className="bg-white rounded-xl overflow-hidden shadow-sm"
                   >
+
                     {/* Thumbnail */}
                     {enrollment.course.thumbnail ? (
                       <img
@@ -204,14 +268,17 @@ const StudentDashboard = () => {
 
                     <div className="p-5">
 
+                      {/* Category */}
                       <p className="text-sm text-gray-500 font-anik">
                         {enrollment.course.category}
                       </p>
 
+                      {/* Course title */}
                       <h3 className="text-xl font-bold text-primary font-anik mt-1">
                         {enrollment.course.title}
                       </h3>
 
+                      {/* Description */}
                       <p className="text-gray-600 text-sm mt-2 line-clamp-2">
                         {enrollment.course.description}
                       </p>
@@ -220,6 +287,7 @@ const StudentDashboard = () => {
                       <div className="mt-5">
 
                         <div className="flex justify-between text-sm font-anik">
+
                           <span className="text-gray-500">
                             অগ্রগতি
                           </span>
@@ -227,51 +295,60 @@ const StudentDashboard = () => {
                           <span className="font-semibold text-primary">
                             {enrollment.progress}%
                           </span>
+
                         </div>
 
                         <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+
                           <div
-                            className="h-full bg-primary rounded-full"
+                            className="h-full bg-primary rounded-full transition-all duration-500"
                             style={{
                               width: `${enrollment.progress}%`,
                             }}
                           />
+
                         </div>
 
                       </div>
 
                       {/* Status */}
                       <div className="mt-4">
+
                         {enrollment.completed ? (
                           <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-anik">
-                            সম্পন্ন
+                            ✓ সম্পন্ন
                           </span>
                         ) : (
                           <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-anik">
                             চলমান
                           </span>
                         )}
+
                       </div>
 
-                      {/* Continue */}
+                      {/* Lesson Page Button */}
                       <Link
                         to={`/student/learn/${enrollment.course._id}`}
-                        className="block text-center mt-5 bg-primary text-white py-3 rounded-lg font-anik hover:opacity-90"
+                        className="block text-center mt-5 bg-primary text-white py-3 rounded-lg font-anik hover:opacity-90 cursor-pointer"
                       >
                         {enrollment.completed
-                          ? "কোর্স দেখুন"
+                          ? "কোর্স আবার দেখুন"
                           : "শেখা চালিয়ে যান"}
                       </Link>
 
                     </div>
+
                   </div>
+
                 ))}
 
               </div>
             )}
 
         </section>
+
       </main>
+
     </div>
   )
 }
