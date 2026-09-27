@@ -8,6 +8,7 @@ import LearningPage from "../pages/student/LearningPage";
 import ProtectedRoute from "./ProtectedRoute";
 import InstructorDashboard from "../pages/instructor/InstructorDashboard"
 import CreateCourse from "../pages/instructor/CreateCourse"
+import CourseManagement from "../pages/instructor/CourseManagement"
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -26,6 +27,7 @@ const AppRoutes = () => (
         <Route path="/student/learn/:id" element={<LearningPage />} />
         <Route path="/instructor/dashboard" element={<InstructorDashboard />}/>
         <Route path="/instructor/courses/create" element={<CreateCourse />}/>
+        <Route path="/instructor/courses/:id/manage" element={<CourseManagement />}/>
       </Route>
     </Routes>
   </BrowserRouter>

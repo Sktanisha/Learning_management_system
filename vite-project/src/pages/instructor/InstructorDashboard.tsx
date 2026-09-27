@@ -295,12 +295,12 @@ const InstructorDashboard = () => {
                           দেখুন
                         </Link>
 
-                        <button
-                          type="button"
-                          className="bg-primary text-white py-2.5 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90"
-                        >
-                          ম্যানেজ
-                        </button>
+                        <Link
+  to={`/instructor/courses/${course._id}/manage`}
+  className="bg-primary text-white py-2.5 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90 text-center"
+>
+  ম্যানেজ
+</Link>
 
                       </div>
 
