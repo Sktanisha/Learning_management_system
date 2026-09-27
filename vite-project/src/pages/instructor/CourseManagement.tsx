@@ -1,72 +1,105 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { api } from "../../services/api";
+import { useEffect, useState } from "react"
+import { Link, useParams } from "react-router-dom"
+import { api } from "../../services/api"
 
 type Lesson = {
-  _id: string;
-  title: string;
-  description: string;
-  videoUrl: string;
-  duration: number;
-  order: number;
-};
+  _id: string
+  title: string
+  description: string
+  videoUrl: string
+  duration: number
+  order: number
+}
 
 type Instructor = {
-  _id: string;
-  name: string;
-  email: string;
-};
+  _id: string
+  name: string
+  email: string
+}
 
 type Course = {
-  _id: string;
-  title: string;
-  description: string;
-  thumbnail?: string;
-  price: number;
-  category: string;
-  rating: number;
-  instructor: Instructor;
-  students?: string[];
-  lessons?: Lesson[];
-};
+  _id: string
+  title: string
+  description: string
+  thumbnail?: string
+  price: number
+  category: string
+  rating: number
+  instructor: Instructor
+  students?: string[]
+  lessons?: Lesson[]
+}
 
 const CourseManagement = () => {
-  const { id } = useParams();
+  const { id } = useParams()
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [course, setCourse] = useState<Course | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  const fetchCourse = async () => {
+    if (!id) {
+      setError("Course ID পাওয়া যায়নি")
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      setError("")
+
+      const data = await api(`/courses/${id}`)
+
+      setCourse(data.course)
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "কোর্স লোড করা যায়নি"
+
+      setError(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchCourse = async () => {
-      if (!id) return;
+    fetchCourse()
+  }, [id])
 
-      try {
-        setIsLoading(true);
-        setError("");
+  const handleDeleteLesson = async (lessonId: string) => {
+    const confirmed = window.confirm(
+      "আপনি কি এই লেসনটি ডিলিট করতে চান?",
+    )
 
-        const data = await api(`/courses/${id}`);
+    if (!confirmed) {
+      return
+    }
 
-        setCourse(data.course);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "কোর্স লোড করা যায়নি";
+    try {
+      await api(`/lessons/${lessonId}`, {
+        method: "DELETE",
+      })
 
-        setError(message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      await fetchCourse()
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "লেসন ডিলিট করা যায়নি"
 
-    fetchCourse();
-  }, [id]);
+      alert(message)
+    }
+  }
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
-        <p className="font-anik text-gray-600">কোর্স লোড হচ্ছে...</p>
+        <p className="font-anik text-gray-600">
+          কোর্স লোড হচ্ছে...
+        </p>
       </div>
-    );
+    )
   }
 
   if (error || !course) {
@@ -85,7 +118,7 @@ const CourseManagement = () => {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -98,7 +131,9 @@ const CourseManagement = () => {
               কোর্স ম্যানেজমেন্ট
             </h1>
 
-            <p className="text-gray-500 font-anik mt-1">{course.title}</p>
+            <p className="text-gray-500 font-anik mt-1">
+              {course.title}
+            </p>
           </div>
 
           <Link
@@ -125,7 +160,9 @@ const CourseManagement = () => {
                 />
               ) : (
                 <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-400 font-anik">Course Image</span>
+                  <span className="text-gray-400 font-anik">
+                    Course Image
+                  </span>
                 </div>
               )}
             </div>
@@ -146,7 +183,9 @@ const CourseManagement = () => {
 
               <div className="grid grid-cols-3 gap-4 mt-5">
                 <div>
-                  <p className="text-sm text-gray-500 font-anik">Students</p>
+                  <p className="text-sm text-gray-500 font-anik">
+                    Students
+                  </p>
 
                   <p className="text-xl font-bold text-primary">
                     {course.students?.length || 0}
@@ -154,7 +193,9 @@ const CourseManagement = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500 font-anik">Lessons</p>
+                  <p className="text-sm text-gray-500 font-anik">
+                    Lessons
+                  </p>
 
                   <p className="text-xl font-bold text-primary">
                     {course.lessons?.length || 0}
@@ -162,7 +203,9 @@ const CourseManagement = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500 font-anik">Price</p>
+                  <p className="text-sm text-gray-500 font-anik">
+                    Price
+                  </p>
 
                   <p className="text-xl font-bold text-primary">
                     ৳ {course.price}
@@ -195,7 +238,8 @@ const CourseManagement = () => {
           </div>
 
           {/* No Lessons */}
-          {!course.lessons || course.lessons.length === 0 ? (
+          {!course.lessons ||
+          course.lessons.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-10 text-center">
               <h3 className="text-xl font-semibold text-primary font-anik">
                 এখনো কোনো লেসন নেই
@@ -214,7 +258,7 @@ const CourseManagement = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {course.lessons
+              {[...course.lessons]
                 .sort((a, b) => a.order - b.order)
                 .map((lesson) => (
                   <div
@@ -255,6 +299,9 @@ const CourseManagement = () => {
 
                         <button
                           type="button"
+                          onClick={() =>
+                            handleDeleteLesson(lesson._id)
+                          }
                           className="border border-red-500 text-red-500 px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-red-50"
                         >
                           Delete
@@ -268,7 +315,7 @@ const CourseManagement = () => {
         </section>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default CourseManagement;
+export default CourseManagement
