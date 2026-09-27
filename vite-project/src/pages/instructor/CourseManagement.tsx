@@ -149,6 +149,27 @@ const CourseManagement = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Course Information */}
         <section className="bg-white rounded-xl shadow-sm p-6">
+          {/* Course Header */}
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div>
+              <p className="text-sm text-gray-500 font-anik">
+                {course.category}
+              </p>
+
+              <h2 className="text-2xl font-bold text-primary font-anik mt-1">
+                {course.title}
+              </h2>
+            </div>
+
+            <Link
+              to={`/instructor/courses/${course._id}/edit`}
+              className="inline-flex items-center justify-center bg-primary text-white px-5 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90 transition shrink-0"
+            >
+              কোর্স এডিট করুন
+            </Link>
+          </div>
+
+          {/* Course Content */}
           <div className="flex flex-col md:flex-row gap-6">
             {/* Thumbnail */}
             <div className="w-full md:w-[300px] shrink-0">
@@ -169,15 +190,7 @@ const CourseManagement = () => {
 
             {/* Course Details */}
             <div className="flex-1">
-              <p className="text-sm text-gray-500 font-anik">
-                {course.category}
-              </p>
-
-              <h2 className="text-2xl font-bold text-primary font-anik mt-1">
-                {course.title}
-              </h2>
-
-              <p className="text-gray-600 mt-3 leading-7">
+              <p className="text-gray-600 leading-7">
                 {course.description}
               </p>
 
@@ -231,7 +244,7 @@ const CourseManagement = () => {
 
             <Link
               to={`/instructor/courses/${course._id}/lessons/create`}
-              className="bg-primary text-white px-5 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90"
+              className="bg-primary text-white px-5 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90 transition"
             >
               + নতুন লেসন
             </Link>
@@ -251,7 +264,7 @@ const CourseManagement = () => {
 
               <Link
                 to={`/instructor/courses/${course._id}/lessons/create`}
-                className="inline-block mt-5 bg-primary text-white px-6 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90"
+                className="inline-block mt-5 bg-primary text-white px-6 py-3 rounded-lg font-anik font-semibold cursor-pointer hover:opacity-90 transition"
               >
                 + নতুন লেসন তৈরি করুন
               </Link>
@@ -292,7 +305,7 @@ const CourseManagement = () => {
                       <div className="flex gap-3">
                         <Link
                           to={`/instructor/lessons/${lesson._id}/edit`}
-                          className="border border-primary text-primary px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-gray-50"
+                          className="border border-primary text-primary px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-gray-50 transition"
                         >
                           Edit
                         </Link>
@@ -302,7 +315,7 @@ const CourseManagement = () => {
                           onClick={() =>
                             handleDeleteLesson(lesson._id)
                           }
-                          className="border border-red-500 text-red-500 px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-red-50"
+                          className="border border-red-500 text-red-500 px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-red-50 transition"
                         >
                           Delete
                         </button>
