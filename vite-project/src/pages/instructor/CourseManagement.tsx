@@ -246,12 +246,12 @@ const CourseManagement = () => {
 
                       {/* Actions */}
                       <div className="flex gap-3">
-                        <button
-                          type="button"
+                        <Link
+                          to={`/instructor/lessons/${lesson._id}/edit`}
                           className="border border-primary text-primary px-4 py-2 rounded-lg font-anik font-semibold cursor-pointer hover:bg-gray-50"
                         >
                           Edit
-                        </button>
+                        </Link>
 
                         <button
                           type="button"

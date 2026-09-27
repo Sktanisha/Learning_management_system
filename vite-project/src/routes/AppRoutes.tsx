@@ -10,6 +10,7 @@ import InstructorDashboard from "../pages/instructor/InstructorDashboard"
 import CreateCourse from "../pages/instructor/CreateCourse"
 import CourseManagement from "../pages/instructor/CourseManagement"
 import CreateLesson from "../pages/instructor/CreateLesson"
+import EditLesson from "../pages/instructor/EditLesson"
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -30,6 +31,7 @@ const AppRoutes = () => (
         <Route path="/instructor/courses/create" element={<CreateCourse />}/>
         <Route path="/instructor/courses/:id/manage" element={<CourseManagement />}/>
         <Route path="/instructor/courses/:id/lessons/create" element={<CreateLesson />}/>
+        <Route path="/instructor/lessons/:id/edit" element={<EditLesson />}/>
       </Route>
     </Routes>
   </BrowserRouter>
