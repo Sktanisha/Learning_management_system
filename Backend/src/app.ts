@@ -1,6 +1,7 @@
 import express from "express"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
+import connectDB from "./config/db"
 import cors from "cors"
 import authRoutes from "./routes/authRoutes"
 import courseRoutes from "./routes/courseRoutes"
@@ -11,7 +12,14 @@ import userRoutes from "./routes/userRoutes"
 import { errorMiddleware } from "./middleware/errorMiddleware"
 
 const app = express()
-
+app.use(async (_req, _res, next) => {
+  try {
+    await connectDB()
+    next()
+  } catch (error) {
+    next(error)
+  }
+})
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
