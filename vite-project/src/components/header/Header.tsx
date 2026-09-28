@@ -1,64 +1,150 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import Container from "../common/Container"
 import ListItem from "../ui/ListItem"
 import type { NavList } from "../../types/navItemtype"
-import Button from "../ui/Button"
 import Flex from "../ui/Flex"
-import { IoMdMenu } from "react-icons/io";
-
+import { IoMdMenu } from "react-icons/io"
 
 const Header = () => {
-  let [isOpen,setIsOpen] = useState<boolean>(false);
-  const [navList, setNavList]= useState<NavList[]>([
+  const [isOpen, setIsOpen] = useState(false)
+
+  const navList: NavList[] = [
     {
       id: 1,
-      title:"হোম"
+      title: "হোম",
     },
     {
       id: 2,
-      title:"আমাদের কোর্সসমহ"
+      title: "আমাদের কোর্সসমূহ",
     },
     {
       id: 3,
-      title:"যোগাযোগ"
+      title: "যোগাযোগ",
     },
     {
       id: 4,
-      title:"ক্যারিয়ার গাইডলাইন"
-    }
-  ])
-  return (
-    <header className="bg-primary text-white py-[15px]">
-      <nav className="relative">
-       <Container>
-        <Flex className="justify-between items-center">
-          <img src="images/logo.png" alt="logo"/>
-        <ul className=" hidden lg:flex gap-6">
-          {navList.map((item)=> (
-             <ListItem className="text-2xl font-semibold font-anik" key= {item.id} item = {item}/>
-          ))}
-         
-        </ul>
-        {isOpen &&
-        <ul className=" absolute px-5 py-5  w-full top-[65px] bg-primary  left-0 lg:hidden gap-6">
-          {navList.map((item)=> (
-             <ListItem className="text-2xl font-semibold font-anik" key= {item.id} item = {item}/>
-          ))}
-         
-        </ul>
-        }
-        
-        <div className="flex items-center gap-5">
-        <Button className="text-lg lg:text-2xl rounded-[10px] font-semibold py-[11px] px:3 lg:px-[58px] font-anik bg-secondary text-white" title="কোর্স দেখুন"/>
-        <IoMdMenu onClick={()=>setIsOpen(!isOpen)} className="lg:hidden text-3xl"/>
-        </div>
-        
-        </Flex>
-        
-       </Container>
+      title: "ক্যারিয়ার গাইডলাইন",
+    },
+  ]
 
-          
-        
+  return (
+    <header className="bg-primary text-white">
+      <nav className="relative">
+        <Container>
+          <Flex className="min-h-[88px] justify-between items-center gap-6">
+            {/* Logo */}
+            <Link
+              to="/"
+              className="shrink-0 flex items-center"
+            >
+              <img
+                src="/images/logo.png"
+                alt="কোড দুনিয়া"
+                className="w-[150px] lg:w-[175px] h-auto"
+              />
+            </Link>
+
+            {/* Desktop Navigation */}
+            <ul className="hidden lg:flex items-center gap-2 xl:gap-4">
+              {navList.map((item) => (
+                <ListItem
+                  key={item.id}
+                  item={item}
+                  className={`text-lg xl:text-xl font-semibold font-anik px-4 py-3 rounded-lg transition ${
+                    item.id === 1
+                      ? "bg-white/10"
+                      : "hover:bg-white/10"
+                  }`}
+                />
+              ))}
+            </ul>
+
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center gap-3 shrink-0">
+              {/* Login */}
+              <Link
+                to="/login"
+                className="px-5 py-2.5 rounded-lg border-2 border-white text-white text-lg font-semibold font-anik hover:bg-white hover:text-primary transition duration-200"
+              >
+                লগইন
+              </Link>
+
+              {/* Register */}
+              <Link
+                to="/register"
+                className="px-5 py-2.5 rounded-lg bg-secondary text-white text-lg font-semibold font-anik hover:opacity-90 transition duration-200"
+              >
+                রেজিস্টার
+              </Link>
+
+              {/* Courses */}
+              <Link
+                to="/courses"
+                className="px-6 py-2.5 rounded-lg bg-secondary text-white text-lg font-semibold font-anik hover:opacity-90 transition duration-200"
+              >
+                কোর্স দেখুন
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden text-3xl cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              <IoMdMenu />
+            </button>
+          </Flex>
+
+          {/* Mobile Menu */}
+          {isOpen && (
+            <div className="lg:hidden absolute left-0 right-0 top-full z-50 bg-primary shadow-lg border-t border-white/10">
+              <div className="px-5 py-5">
+                <ul className="space-y-2">
+                  {navList.map((item) => (
+                    <ListItem
+                      key={item.id}
+                      item={item}
+                      className="text-xl font-semibold font-anik px-4 py-3 rounded-lg hover:bg-white/10 transition"
+                    />
+                  ))}
+                </ul>
+
+                {/* Mobile Actions */}
+                <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-white/10">
+                  {/* Login */}
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="text-center px-4 py-3 rounded-lg border-2 border-white text-white font-semibold font-anik hover:bg-white hover:text-primary transition"
+                  >
+                    লগইন
+                  </Link>
+
+                  {/* Register */}
+                  <Link
+                    to="/register"
+                    onClick={() => setIsOpen(false)}
+                    className="text-center px-4 py-3 rounded-lg bg-secondary text-white font-semibold font-anik hover:opacity-90 transition"
+                  >
+                    রেজিস্টার
+                  </Link>
+
+                  {/* Courses */}
+                  <Link
+                    to="/courses"
+                    onClick={() => setIsOpen(false)}
+                    className="col-span-2 text-center px-4 py-3 rounded-lg bg-secondary text-white font-semibold font-anik hover:opacity-90 transition"
+                  >
+                    কোর্স দেখুন
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </Container>
       </nav>
     </header>
   )
