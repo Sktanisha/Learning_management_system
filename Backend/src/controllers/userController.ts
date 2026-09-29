@@ -227,3 +227,95 @@ export const deleteUser = async (
     })
   }
 }
+
+export const getInstructorStudents = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      })
+    }
+
+    if (req.user.role !== "instructor") {
+      return res.status(403).json({
+        success: false,
+        message: "Instructor access required",
+      })
+    }
+
+    const instructorId = req.user.userId
+
+    const courses = await Course.find({
+      instructor: instructorId,
+    })
+      .select("_id title students")
+      .populate({
+        path: "students",
+        select: "name email profileImage",
+      })
+
+    const studentsMap = new Map<
+      string,
+      {
+        _id: string
+        name: string
+        email: string
+        profileImage?: string
+        courses: {
+          _id: string
+          title: string
+        }[]
+      }
+    >()
+
+    for (const course of courses) {
+      const students = course.students as unknown as {
+        _id: string
+        name: string
+        email: string
+        profileImage?: string
+      }[]
+
+      for (const student of students) {
+        const studentId = String(student._id)
+
+        if (!studentsMap.has(studentId)) {
+          studentsMap.set(studentId, {
+            _id: studentId,
+            name: student.name,
+            email: student.email,
+            profileImage: student.profileImage,
+            courses: [],
+          })
+        }
+
+        studentsMap.get(studentId)?.courses.push({
+          _id: String(course._id),
+          title: course.title,
+        })
+      }
+    }
+
+    const students = Array.from(studentsMap.values())
+
+    return res.status(200).json({
+      success: true,
+      count: students.length,
+      students,
+    })
+  } catch (error) {
+    console.error(
+      "Get instructor students error:",
+      error,
+    )
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    })
+  }
+}
